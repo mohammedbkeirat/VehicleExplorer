@@ -1,3 +1,7 @@
 <Solution>
   <Project Path="VehicleExplorer.Api/VehicleExplorer.Api.csproj" />
+  <Project Path="VehicleExplorer.Client/VehicleExplorer.Client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
 </Solution>
