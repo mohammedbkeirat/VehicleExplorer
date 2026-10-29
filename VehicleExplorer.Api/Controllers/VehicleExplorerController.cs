@@ -31,7 +31,7 @@ namespace VehicleExplorer.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("make/{makeId}/model-year/{year}")]
+        [HttpGet("make/{makeId}/modelyear/{year}")]
         public async Task<IActionResult> GetModelsForMakeAndYear(int makeId, int year, CancellationToken cancellationToken)
         {
             if (makeId <= 0)
@@ -44,7 +44,7 @@ namespace VehicleExplorer.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("make/{makeId}/model-year/{year}/type/{type}")]
+        [HttpGet("make/{makeId}/modelyear/{year}/type/{type}")]
         public async Task<IActionResult> GetModelsForMakeYearAndType(int makeId, int year, string type, CancellationToken cancellationToken)
         {
             if (makeId <= 0)

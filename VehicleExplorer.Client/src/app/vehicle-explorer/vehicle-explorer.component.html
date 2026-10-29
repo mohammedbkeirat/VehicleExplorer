@@ -1,0 +1,226 @@
+
+<main class="vehicle-explorer">
+  <section class="search-card">
+    <header class="page-header">
+      <div class="header-icon">
+        <mat-icon>directions_car</mat-icon>
+      </div>
+
+      <div class="header-content">
+        <h1>Vehicle Explorer</h1>
+        <p>Find the perfect vehicle by make and model year.</p>
+      </div>
+    </header>
+
+    <div class="header-divider"></div>
+
+    <form class="search-form"
+          (submit)="$event.preventDefault(); onSearch()">
+      <!-- Make -->
+      <div class="form-field make-field">
+        <label class="field-label" for="make">
+          Make <span>*</span>
+        </label>
+
+        <div class="make-dropdown">
+          <div class="input-wrapper"
+               [class.focused]="isMakeDropdownOpen()"
+               [class.invalid]="submitted() && !vehicleSearchModel().make">
+            <mat-icon class="field-icon">search</mat-icon>
+
+            <input id="make"
+                   type="text"
+                   placeholder="Search or select a make"
+                   autocomplete="off"
+                   [formField]="vehicleSearchForm.makeSearchText"
+                   (focus)="onMakeInputFocus()"
+                   (blur)="onMakeInputBlur()"
+                   [attr.aria-expanded]="isMakeDropdownOpen()"
+                   aria-haspopup="listbox"
+                   aria-controls="make-options" />
+
+            <button type="button"
+                    class="icon-button"
+                    aria-label="Toggle make options"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="
+                toggleMakeDropdown()
+              ">
+              <mat-icon>
+                {{ isMakeDropdownOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+              </mat-icon>
+            </button>
+          </div>
+
+          @if (isMakeDropdownOpen()) {
+          <div class="dropdown-options" id="make-options" role="listbox">
+            @if (makesResource.isLoading()) {
+            <div class="dropdown-message">
+              <span class="loading-dot"></span>
+              Loading makes...
+            </div>
+            } @else if (makesResource.error()) {
+            <div class="dropdown-message error">
+              Unable to load makes.
+            </div>
+            } @else if (filteredMakes().length === 0) {
+            <div class="empty-state">
+              <mat-icon>search_off</mat-icon>
+              <span>No matching makes found</span>
+            </div>
+            } @else {
+            @for (make of filteredMakes(); track make) {
+            <button type="button"
+                    class="dropdown-option"
+                    role="option"
+                    [attr.aria-selected]="vehicleSearchModel().make?.Make_ID === make.Make_ID"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="selectMake(make)">
+              <span class="option-icon">
+                <mat-icon>directions_car</mat-icon>
+              </span>
+
+              <span class="option-name">{{ make.Make_Name }}</span>
+
+              @if (
+              vehicleSearchModel().make?.Make_ID === make.Make_ID
+              ) {
+              <mat-icon class="selected-icon">check</mat-icon>
+              }
+            </button>
+            }
+            }
+          </div>
+          }
+        </div>
+
+        @if (submitted() && !vehicleSearchModel().make) {
+        <span class="field-error">
+          <mat-icon>error_outline</mat-icon>
+          Please select a make.
+        </span>
+        }
+      </div>
+
+      <!-- Model year -->
+      <div class="form-field year-field">
+        <label class="field-label" for="year">
+          Model year <span>*</span>
+        </label>
+
+        <div class="input-wrapper"
+             [class.invalid]="
+            submitted() && vehicleSearchModel().year === null
+          ">
+          <mat-icon class="field-icon">calendar_today</mat-icon>
+
+          <select id="year" [formField]="vehicleSearchForm.year">
+            <option [value]="null" disabled>Select a year</option>
+
+            @for (year of years; track year) {
+            <option [value]="year">{{ year }}</option>
+            }
+          </select>
+
+          <mat-icon class="select-arrow">keyboard_arrow_down</mat-icon>
+        </div>
+
+        @if (submitted() && vehicleSearchModel().year === null) {
+        <span class="field-error">
+          <mat-icon>error_outline</mat-icon>
+          Please select a year.
+        </span>
+        }
+      </div>
+
+      <!-- Search -->
+      <button class="search-button"
+              type="submit"
+              [disabled]="modelsResource.isLoading()">
+        @if (modelsResource.isLoading()) {
+        <span class="spinner"></span>
+        Searching...
+        } @else {
+        <mat-icon>search</mat-icon>
+        <span>Search vehicles</span>
+        }
+      </button>
+    </form>
+  </section>
+
+  <!-- Results -->
+  @if (modelsResource.error()) {
+  <section class="results-panel">
+    <div class="status-message error">
+      <mat-icon>error_outline</mat-icon>
+      <div>
+        <strong>Something went wrong</strong>
+        <p>Unable to load vehicle models. Please try again.</p>
+      </div>
+    </div>
+  </section>
+  } @else if (modelsResource.hasValue()) {
+  <section class="results-panel">
+    <header class="results-header">
+      <div class="results-heading">
+        <div class="results-icon">
+          <mat-icon>format_list_bulleted</mat-icon>
+        </div>
+
+        <div>
+          <h2>Search results</h2>
+          <p>
+            {{ vehicleSearchModel().make?.Make_Name }}
+            <span class="metadata-separator">·</span>
+            {{ vehicleSearchModel().year }}
+          </p>
+        </div>
+      </div>
+
+      <span class="result-count">
+        {{ modelResults().length }}
+        {{ modelResults().length === 1 ? 'model' : 'models' }}
+      </span>
+    </header>
+
+    @if (modelResults().length === 0) {
+    <div class="empty-results">
+      <div class="empty-results-icon">
+        <mat-icon>directions_car</mat-icon>
+      </div>
+      <h3>No vehicles found</h3>
+      <p>Try selecting another make or model year.</p>
+    </div>
+    } @else {
+    <div class="results-grid">
+      @for (vehicle of modelResults(); track vehicle) {
+      <article class="vehicle-card">
+        <div class="vehicle-avatar">
+          <mat-icon>directions_car</mat-icon>
+        </div>
+
+        <div class="vehicle-info">
+          <div class="vehicle-title-row">
+            <h3>{{ vehicle.Model_Name }}</h3>
+            <!--<span class="year-badge">{{ vehicle.modelYear }}</span>-->
+          </div>
+
+          <p class="vehicle-make">{{ vehicle.Make_Name }}</p>
+
+          <!--<div class="vehicle-types">
+        @for (type of vehicle.vehicleTypes; track type) {
+        <span class="type-badge">{{ type }}</span>
+        } @empty {
+        <span class="muted-text">No vehicle type specified</span>
+        }
+      </div>-->
+        </div>
+
+        <mat-icon class="card-arrow">chevron_right</mat-icon>
+      </article>
+      }
+    </div>
+    }
+  </section>
+  }
+</main>
