@@ -40,12 +40,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseCors();
 }
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseCors();
 
 app.MapControllers();
 
