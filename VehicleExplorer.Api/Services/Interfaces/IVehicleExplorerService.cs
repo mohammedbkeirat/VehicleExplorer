@@ -1,10 +1,10 @@
 ﻿using VehicleExplorer.Api.DTOs;
 
-namespace VehicleExplorer.Api.Services
+namespace VehicleExplorer.Api.Services.Interfaces
 {
     public interface IVehicleExplorerService
     {
-        Task<IList<MakeDto>> GetAllMakesAsync(CancellationToken cancellationToken);
+        Task<IList<VehicleMakeDto>> GetAllMakesAsync(CancellationToken cancellationToken);
 
         Task<IList<VehicleTypeDto>> GetVehicleTypesForMakeAsync(int makeId, CancellationToken cancellationToken);
 

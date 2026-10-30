@@ -1,4 +1,6 @@
+using System.Text.Json;
 using VehicleExplorer.Api.Services;
+using VehicleExplorer.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,13 @@ builder.Services.AddCors(options =>
               )
     );
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy =
+        JsonNamingPolicy.CamelCase;
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddHttpClient("Nhtsa", client =>
@@ -20,6 +27,10 @@ builder.Services.AddHttpClient("Nhtsa", client =>
     client.BaseAddress = new Uri("https://vpic.nhtsa.dot.gov/api/vehicles/");
     client.Timeout = TimeSpan.FromSeconds(60);
 });
+
+builder.Services.AddScoped<IHttpClientService>(sp => new HttpClientService(
+        sp.GetRequiredService<IHttpClientFactory>(),
+        "Nhtsa"));
 
 builder.Services.AddScoped<IVehicleExplorerService, VehicleExplorerService>();
 

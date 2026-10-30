@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VehicleExplorer.Api.Services;
+using VehicleExplorer.Api.Services.Interfaces;
 
 namespace VehicleExplorer.Api.Controllers
 {

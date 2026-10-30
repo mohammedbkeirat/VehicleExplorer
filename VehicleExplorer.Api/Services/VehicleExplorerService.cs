@@ -1,54 +1,66 @@
-﻿using VehicleExplorer.Api.DTOs;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using VehicleExplorer.Api.DTOs;
+using VehicleExplorer.Api.DTOs.Nhtsa;
+using VehicleExplorer.Api.Services.Interfaces;
 
 namespace VehicleExplorer.Api.Services
 {
     public class VehicleExplorerService : IVehicleExplorerService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientService _httpClientService;
 
-        public VehicleExplorerService(IHttpClientFactory httpClientFactory)
+        public VehicleExplorerService(IHttpClientService httpClientService)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClientService = httpClientService;
         }
 
-        public async Task<IList<MakeDto>> GetAllMakesAsync(CancellationToken cancellationToken)
+        public async Task<IList<VehicleMakeDto>> GetAllMakesAsync(CancellationToken cancellationToken)
         {
-            return await GetResultsAsync<MakeDto>("GetAllMakes?format=json", cancellationToken);
+            var NhtsaResult = await _httpClientService.GetResultsAsync<NhtsaResponse<NhtsaVehicleMakeDto>>("GetAllMakes?format=json", cancellationToken);
+
+            return NhtsaResult.Results.Select(x => new VehicleMakeDto
+            {
+                MakeId = x.MakeId,
+                MakeName = x.MakeName
+            }).ToList();
         }
 
         public async Task<IList<VehicleTypeDto>>GetVehicleTypesForMakeAsync(int makeId, CancellationToken cancellationToken)
         {
-            return await GetResultsAsync<VehicleTypeDto>($"GetVehicleTypesForMakeId/{makeId}?format=json", cancellationToken);
+            var NhtsaResult = await _httpClientService.GetResultsAsync<NhtsaResponse<VehicleTypeDto>>($"GetVehicleTypesForMakeId/{makeId}?format=json", cancellationToken);
+            return NhtsaResult.Results;
         }
 
         public async Task<IList<VehicleModelDto>>GetModelsForMakeAndYearAsync(int makeId, int year, CancellationToken cancellationToken)
         {
-            return await GetResultsAsync<VehicleModelDto>(
+            var NhtsaResult = await _httpClientService.GetResultsAsync<NhtsaResponse<NhtsaVehicleModelDto>>(
                 $"GetModelsForMakeIdYear/makeId/{makeId}/modelyear/{year}?format=json", cancellationToken);
+
+            return NhtsaResult.Results.Select(x => new VehicleModelDto
+            {
+                MakeId = x.MakeId,
+                MakeName = x.MakeName,
+                ModelId = x.ModelId,
+                ModelName = x.ModelName
+            }).ToList();
         }
 
         public async Task<IList<VehicleModelTypeDto>>GetModelsForMakeYearAndTypeAsync(int makeId, int year, string type, CancellationToken cancellationToken)
         {
             var encodedType = Uri.EscapeDataString(type);
 
-            return await GetResultsAsync<VehicleModelTypeDto>(
+            var NhtsaResult = await _httpClientService.GetResultsAsync<NhtsaResponse<NhtsaVehicleModelTypeDto>>(
                       $"GetModelsForMakeIdYear/makeId/{makeId}/modelyear/{year}/vehicletype/{encodedType}?format=json", cancellationToken);
-        }
 
-        private async Task<IList<T>> GetResultsAsync<T>(string requestUri, CancellationToken cancellationToken)
-        {
-            var httpClient = _httpClientFactory.CreateClient("Nhtsa");
-
-            var response = await httpClient.GetFromJsonAsync<NhtsaResponse<T>>(
-                requestUri,
-                cancellationToken);
-
-            if (response is null)
+            return NhtsaResult.Results.Select(x => new VehicleModelTypeDto
             {
-                throw new HttpRequestException("The NHTSA API returned an empty response.");
-            }
-
-            return response.Results;
+                MakeId = x.MakeId,
+                MakeName = x.MakeName,
+                ModelId = x.ModelId,
+                ModelName = x.ModelName,
+                VehicleTypeId =x.VehicleTypeId,
+                VehicleTypeName = x.VehicleTypeName
+            }).ToList();
         }
     }
 }

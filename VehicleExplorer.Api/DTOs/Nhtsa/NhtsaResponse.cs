@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace VehicleExplorer.Api.DTOs
+namespace VehicleExplorer.Api.DTOs.Nhtsa
 {
     public class NhtsaResponse<T>
     {
