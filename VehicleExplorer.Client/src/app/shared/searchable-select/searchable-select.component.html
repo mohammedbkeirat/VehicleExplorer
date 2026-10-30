@@ -1,0 +1,59 @@
+<div class="searchable-select">
+  <div class="input-wrapper" [class.focused]="isOpen()">
+
+    @if (searchable()) {
+    <mat-icon class="field-icon">search</mat-icon>
+    }
+
+    <input type="text"
+           [value]="searchText()"
+           [placeholder]="placeholder()"
+           autocomplete="off"
+           role="combobox"
+           aria-autocomplete="list"
+           [attr.aria-expanded]="isOpen()"
+           (focus)="openDropdown()"
+           (blur)="closeDropdown()" />
+
+    <button type="button"
+            class="icon-button"
+            aria-label="Toggle options"
+            (mousedown)="$event.preventDefault()"
+            (click)="toggleDropdown()">
+      <mat-icon>
+        {{ isOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+      </mat-icon>
+    </button>
+  </div>
+
+  @if (isOpen()) {
+  <div class="dropdown-options" role="listbox">
+
+    @if (loading()) {
+    <div class="dropdown-message">Loading...</div>
+    } @else if (filteredOptions().length === 0) {
+    <div class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <span>No matching options found</span>
+    </div>
+    } @else {
+    @for (option of filteredOptions(); track $index) {
+    <button type="button"
+            class="dropdown-option"
+            role="option"
+            [attr.aria-selected]="value() === option"
+            (mousedown)="$event.preventDefault()"
+            (click)="selectOption(option)">
+      <span class="option-name">
+        {{ displayWith()(option) }}
+      </span>
+
+      @if (value() === option) {
+      <mat-icon class="selected-icon">check</mat-icon>
+      }
+    </button>
+    }
+    }
+  </div>
+  }
+</div>

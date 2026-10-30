@@ -1,5 +1,3 @@
-
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,25 +8,20 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VehicleExplorerService } from './vehicle-explorer.service';
-import { Make } from '../Dtos/make';
+import { VechileMake } from '../../Dtos/vehicle-make';
 import { MatSelectModule } from '@angular/material/select';
 import { form, required } from '@angular/forms/signals';
 import { Field, FormField } from '@angular/forms/signals';
-import { ModelSearch } from '../Dtos/model-search';
+import { ModelSearch } from '../../Dtos/model-search';
+import { SearchableSelectComponent } from '../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-vehicle-explorer',
   standalone: true,
   imports: [
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-    MatTooltipModule,
-    MatSelectModule, FormField
+    FormField,
+    SearchableSelectComponent
   ],
   templateUrl: './vehicle-explorer.component.html',
   styleUrl: './vehicle-explorer.component.scss',
@@ -46,12 +39,15 @@ export class VehicleExplorerComponent {
     () => this.searchCriteria()?.makeId ?? null
   );
 
+
+  readonly makeDisplay = (make: VechileMake) => make.makeName;
+
   readonly makesResource = this.vehicleService.makesResource;
   readonly modelsResource = this.vehicleService.getModelsByCriteriaResource(this.searchCriteria);
   readonly makeTypesResource = this.vehicleService.getMakeTypesResource(this.submittedMakeId);
 
   readonly vehicleSearchModel = signal({
-    make: null as Make | null,
+    make: null as VechileMake | null,
     year: '' as string,
     makeSearchText: ''
   });
@@ -72,14 +68,14 @@ export class VehicleExplorerComponent {
       return makes;
     }
 
-    return makes.filter(make => make.Make_Name.toLowerCase().includes(searchText));
+    return makes.filter(make => make.makeName.toLowerCase().includes(searchText));
   });
 
-  selectMake(make: Make) {
+  selectMake(make: VechileMake) {
     this.vehicleSearchModel.update(model => ({
       ...model,
       make,
-      makeSearchText: make.Make_Name
+      makeSearchText: make.makeName
     }));
 
     this.isMakeDropdownOpen.set(false);
@@ -121,7 +117,7 @@ export class VehicleExplorerComponent {
     }
 
     this.searchCriteria.set({
-      makeId: make.Make_ID,
+      makeId: make.makeId,
       year: Number(year),
       type: ''
     });

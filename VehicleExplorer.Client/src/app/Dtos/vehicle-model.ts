@@ -1,6 +1,6 @@
-export interface MakeModel {
-  Make_ID: number;
-  Model_ID: number;
-  Make_Name: string;
-  Model_Name: string;
+export interface VehicleModel {
+  makeId: number;
+  modelId: number;
+  makeName: string;
+  modelName: string;
 }

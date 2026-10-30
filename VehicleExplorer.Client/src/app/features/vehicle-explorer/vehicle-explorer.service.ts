@@ -1,11 +1,11 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, Service, Signal, inject } from '@angular/core';
-import { API_BASE_URL } from '../core/api-url.token';
-import { Make } from '../Dtos/make';
-import { MakeType } from '../Dtos/make-type';
-import { MakeModel } from '../Dtos/vehicle-model';
-import { ModelSearch } from '../Dtos/model-search';
-import { MakeTypeModel } from '../Dtos/vechile-model-type';
+import { API_BASE_URL } from '../../core/api-url.token';
+import { VechileMake } from '../../Dtos/vehicle-make';
+import { VehicleType } from '../../Dtos/vehicle-type';
+import { VehicleModel } from '../../Dtos/vehicle-model';
+import { ModelSearch } from '../../Dtos/model-search';
+import { VehicleTypeModel } from '../../Dtos/vechile-model-type';
 
 @Service({ autoProvided: false })
 export class VehicleExplorerService {
@@ -13,12 +13,12 @@ export class VehicleExplorerService {
 
   private readonly apiUrl = `${this.baseUrl}/VehicleExplorer`;
 
-  readonly makesResource = httpResource<Make[]>(
+  readonly makesResource = httpResource<VechileMake[]>(
     () => `${this.apiUrl}/makes`
   );
 
   getMakeTypesResource(makeId: Signal<number | null>) {
-    return httpResource<MakeType[]>(() => {
+    return httpResource<VehicleType[]>(() => {
       const id = makeId();
 
       if (id === null) {
@@ -33,7 +33,7 @@ export class VehicleExplorerService {
   }
 
   getModelsByCriteriaResource(modelSearch: Signal<ModelSearch | null>) {
-    return httpResource<MakeModel[] | MakeTypeModel[]>(() => {
+    return httpResource<VehicleTypeModel[]>(() => {
       const criteria = modelSearch();
 
       if (!criteria) {

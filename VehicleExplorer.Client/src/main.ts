@@ -1,6 +1,6 @@
 import { platformBrowser, BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 
-import { provideBrowserGlobalErrorListeners, importProvidersFrom } from '@angular/core';
+import { provideBrowserGlobalErrorListeners, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { routes } from './app/app-routing';
 import { App } from './app/app';
 import { provideRouter } from '@angular/router';

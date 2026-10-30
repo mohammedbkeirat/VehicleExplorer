@@ -17,6 +17,13 @@
     <form class="search-form"
           (submit)="$event.preventDefault(); onSearch()">
       <!-- Make -->
+
+
+      <!--<app-searchable-select [formField]="vehicleSearchForm.make"
+                             [options]="filteredMakes1( ?? []"
+                             [displayWith]="makeDisplay"
+                             placeholder="Search or select a make" />-->
+
       <div class="form-field make-field">
         <label class="field-label" for="make">
           Make <span>*</span>
@@ -73,17 +80,17 @@
             <button type="button"
                     class="dropdown-option"
                     role="option"
-                    [attr.aria-selected]="vehicleSearchModel().make?.Make_ID === make.Make_ID"
+                    [attr.aria-selected]="vehicleSearchModel().make?.makeId === make.makeId"
                     (mousedown)="$event.preventDefault()"
                     (click)="selectMake(make)">
               <span class="option-icon">
                 <mat-icon>directions_car</mat-icon>
               </span>
 
-              <span class="option-name">{{ make.Make_Name }}</span>
+              <span class="option-name">{{ make.makeName }}</span>
 
               @if (
-              vehicleSearchModel().make?.Make_ID === make.Make_ID
+              vehicleSearchModel().make?.makeId === make.makeId
               ) {
               <mat-icon class="selected-icon">check</mat-icon>
               }
@@ -152,10 +159,12 @@
   <!-- Vehicle type filters -->
   <section class="types-section">
     <div class="types-heading">
+      @if (makeTypesResource.hasValue()) {
       <div>
         <h3>Vehicle Types</h3>
         <p>Filter models by vehicle type</p>
       </div>
+      }
 
       @if (makeTypesResource.isLoading()) {
       <span class="types-loading">Loading types...</span>
@@ -163,6 +172,7 @@
     </div>
 
     <div class="type-filters">
+      @if (makeTypesResource.hasValue()) {
       <button type="button"
               class="type-filter"
               [class.active]="searchCriteria()?.type === ''"
@@ -171,15 +181,16 @@
         <mat-icon>apps</mat-icon>
         <span>All Types</span>
       </button>
+      }
 
-      @for (type of makeTypesResource.value() ?? []; track type.VehicleTypeName) {
+      @for (type of makeTypesResource.value() ?? []; track type.vehicleTypeId) {
       <button type="button"
               class="type-filter"
-              [class.active]="searchCriteria()?.type === type.VehicleTypeName"
-              [attr.aria-pressed]="searchCriteria()?.type === type.VehicleTypeName"
-              (click)="selectType(type.VehicleTypeName)">
+              [class.active]="searchCriteria()?.type === type.vehicleTypeName"
+              [attr.aria-pressed]="searchCriteria()?.type === type.vehicleTypeName"
+              (click)="selectType(type.vehicleTypeName)">
         <mat-icon>directions_car</mat-icon>
-        <span>{{ type.VehicleTypeName }}</span>
+        <span>{{ type.vehicleTypeName }}</span>
       </button>
       }
     </div>
@@ -208,7 +219,7 @@
         <div>
           <h2>Search results</h2>
           <p>
-            {{ vehicleSearchModel().make?.Make_Name }}
+            {{ vehicleSearchModel().make?.makeName }}
             <span class="metadata-separator">·</span>
             {{ vehicleSearchModel().year }}
           </p>
@@ -239,13 +250,13 @@
 
         <div class="vehicle-info">
           <div class="vehicle-title-row">
-            <h3>{{ vehicle.Model_Name }}</h3>
+            <h3>{{ vehicle.modelName }}</h3>
           </div>
 
-          <p class="vehicle-make">{{ vehicle.Make_Name }}</p>
-          @if(vehicle.VehicleTypeName){
+          <p class="vehicle-make">{{ vehicle.makeName }}</p>
+          @if(vehicle.vehicleTypeId){
           <div class="vehicle-types">
-            <span class="type-badge">{{ vehicle.VehicleTypeName }}</span>
+            <span class="type-badge">{{ vehicle.vehicleTypeName }}</span>
           </div>
           }
 
