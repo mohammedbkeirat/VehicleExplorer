@@ -125,7 +125,7 @@
           <mat-icon class="select-arrow">keyboard_arrow_down</mat-icon>
         </div>
 
-        @if (submitted() && vehicleSearchModel().year === null) {
+        @if (submitted() && vehicleSearchModel().year == null) {
         <span class="field-error">
           <mat-icon>error_outline</mat-icon>
           Please select a year.
@@ -147,6 +147,44 @@
       </button>
     </form>
   </section>
+
+
+  <!-- Vehicle type filters -->
+  <section class="types-section">
+    <div class="types-heading">
+      <div>
+        <h3>Vehicle Types</h3>
+        <p>Filter models by vehicle type</p>
+      </div>
+
+      @if (makeTypesResource.isLoading()) {
+      <span class="types-loading">Loading types...</span>
+      }
+    </div>
+
+    <div class="type-filters">
+      <button type="button"
+              class="type-filter"
+              [class.active]="searchCriteria()?.type === ''"
+              [attr.aria-pressed]="searchCriteria()?.type === ''"
+              (click)="selectType('')">
+        <mat-icon>apps</mat-icon>
+        <span>All Types</span>
+      </button>
+
+      @for (type of makeTypesResource.value() ?? []; track type.VehicleTypeName) {
+      <button type="button"
+              class="type-filter"
+              [class.active]="searchCriteria()?.type === type.VehicleTypeName"
+              [attr.aria-pressed]="searchCriteria()?.type === type.VehicleTypeName"
+              (click)="selectType(type.VehicleTypeName)">
+        <mat-icon>directions_car</mat-icon>
+        <span>{{ type.VehicleTypeName }}</span>
+      </button>
+      }
+    </div>
+  </section>
+
 
   <!-- Results -->
   @if (modelsResource.error()) {
@@ -202,21 +240,17 @@
         <div class="vehicle-info">
           <div class="vehicle-title-row">
             <h3>{{ vehicle.Model_Name }}</h3>
-            <!--<span class="year-badge">{{ vehicle.modelYear }}</span>-->
           </div>
 
           <p class="vehicle-make">{{ vehicle.Make_Name }}</p>
+          @if(vehicle.VehicleTypeName){
+          <div class="vehicle-types">
+            <span class="type-badge">{{ vehicle.VehicleTypeName }}</span>
+          </div>
+          }
 
-          <!--<div class="vehicle-types">
-        @for (type of vehicle.vehicleTypes; track type) {
-        <span class="type-badge">{{ type }}</span>
-        } @empty {
-        <span class="muted-text">No vehicle type specified</span>
-        }
-      </div>-->
         </div>
 
-        <mat-icon class="card-arrow">chevron_right</mat-icon>
       </article>
       }
     </div>

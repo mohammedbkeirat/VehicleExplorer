@@ -5,8 +5,7 @@ import { Make } from '../Dtos/make';
 import { MakeType } from '../Dtos/make-type';
 import { MakeModel } from '../Dtos/vehicle-model';
 import { ModelSearch } from '../Dtos/model-search';
-
-// import { MakeDto } from '../models/make.dto';
+import { MakeTypeModel } from '../Dtos/vechile-model-type';
 
 @Service({ autoProvided: false })
 export class VehicleExplorerService {
@@ -33,18 +32,22 @@ export class VehicleExplorerService {
     });
   }
 
-  getModelByMakeAndYearResource(modelSearch: Signal<ModelSearch | null>) {
-    return httpResource<MakeModel[]>(() => {
+  getModelsByCriteriaResource(modelSearch: Signal<ModelSearch | null>) {
+    return httpResource<MakeModel[] | MakeTypeModel[]>(() => {
       const criteria = modelSearch();
 
       if (!criteria) {
         return undefined;
       }
 
+      const baseUrl =
+        `${this.apiUrl}/make/${criteria.makeId}/modelyear/${criteria.year}`;
+
       return {
-        url: `${this.apiUrl}/make/${criteria.makeId}/modelyear/${criteria.year}`,
-        method: 'GET',
+        url: criteria.type ? `${baseUrl}/type/${criteria.type}` : baseUrl,
+        method: 'GET'
       };
     });
   }
+
 }

@@ -1,11 +1,6 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import {
-  FormControl,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { map, startWith } from 'rxjs';
 import { VehicleExplorerService } from './vehicle-explorer.service';
 import { Make } from '../Dtos/make';
 import { MatSelectModule } from '@angular/material/select';
@@ -22,22 +16,10 @@ import { form, required } from '@angular/forms/signals';
 import { Field, FormField } from '@angular/forms/signals';
 import { ModelSearch } from '../Dtos/model-search';
 
-interface VehicleMake {
-  id: number;
-  name: string;
-}
-
-interface VehicleModel {
-  modelName: string;
-  vehicleType: string;
-}
-
 @Component({
   selector: 'app-vehicle-explorer',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -54,18 +36,19 @@ interface VehicleModel {
 })
 export class VehicleExplorerComponent {
 
-
   private readonly vehicleService = inject(VehicleExplorerService);
 
   private readonly searchCriteria = signal<ModelSearch | null>(null);
+  readonly submitted = signal(false);
+  readonly isMakeDropdownOpen = signal(false);
 
   readonly submittedMakeId = computed(
     () => this.searchCriteria()?.makeId ?? null
   );
 
   readonly makesResource = this.vehicleService.makesResource;
-  readonly modelsResource = this.vehicleService.getModelByMakeAndYearResource(this.searchCriteria);
-  readonly typesResource = this.vehicleService.getMakeTypesResource(this.submittedMakeId);
+  readonly modelsResource = this.vehicleService.getModelsByCriteriaResource(this.searchCriteria);
+  readonly makeTypesResource = this.vehicleService.getMakeTypesResource(this.submittedMakeId);
 
   readonly vehicleSearchModel = signal({
     make: null as Make | null,
@@ -92,8 +75,6 @@ export class VehicleExplorerComponent {
     return makes.filter(make => make.Make_Name.toLowerCase().includes(searchText));
   });
 
-  readonly isMakeDropdownOpen = signal(false);
-
   selectMake(make: Make) {
     this.vehicleSearchModel.update(model => ({
       ...model,
@@ -102,6 +83,12 @@ export class VehicleExplorerComponent {
     }));
 
     this.isMakeDropdownOpen.set(false);
+  }
+
+  selectType(type: string) {
+    this.searchCriteria.update(criteria =>
+      criteria ? { ...criteria, type } : criteria
+    );
   }
 
   readonly modelResults = computed(
@@ -120,8 +107,6 @@ export class VehicleExplorerComponent {
     this.isMakeDropdownOpen.set(false);
   }
 
-  readonly submitted = signal(false);
-
   onSearch(): void {
     this.submitted.set(true);
 
@@ -137,10 +122,10 @@ export class VehicleExplorerComponent {
 
     this.searchCriteria.set({
       makeId: make.Make_ID,
-      year: Number(year)
+      year: Number(year),
+      type: ''
     });
   }
-
 
   readonly currentYear = new Date().getFullYear();
 
