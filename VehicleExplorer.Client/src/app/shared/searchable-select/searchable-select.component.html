@@ -2,16 +2,18 @@
   <div class="input-wrapper" [class.focused]="isOpen()">
 
     @if (searchable()) {
-    <mat-icon class="field-icon">search</mat-icon>
+    <mat-icon class="field-icon">{{icon()}}</mat-icon>
     }
 
     <input type="text"
            [value]="searchText()"
            [placeholder]="placeholder()"
+           [readOnly]="!searchable()"
            autocomplete="off"
            role="combobox"
            aria-autocomplete="list"
            [attr.aria-expanded]="isOpen()"
+           (input)="onSearchInput($event)"
            (focus)="openDropdown()"
            (blur)="closeDropdown()" />
 
@@ -20,40 +22,52 @@
             aria-label="Toggle options"
             (mousedown)="$event.preventDefault()"
             (click)="toggleDropdown()">
+
       <mat-icon>
         {{ isOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
       </mat-icon>
     </button>
+
   </div>
 
   @if (isOpen()) {
   <div class="dropdown-options" role="listbox">
 
     @if (loading()) {
-    <div class="dropdown-message">Loading...</div>
-    } @else if (filteredOptions().length === 0) {
+    <div class="dropdown-message">
+      <span class="loading-dot"></span>
+      Loading makes...
+    </div>
+    }
+    @else if (filteredItems().length === 0) {
     <div class="empty-state">
       <mat-icon>search_off</mat-icon>
       <span>No matching options found</span>
     </div>
-    } @else {
-    @for (option of filteredOptions(); track $index) {
-    <button type="button"
-            class="dropdown-option"
-            role="option"
-            [attr.aria-selected]="value() === option"
-            (mousedown)="$event.preventDefault()"
-            (click)="selectOption(option)">
+    }
+    @else {
+    @for (item of filteredItems(); track $index) {
+    <div class="dropdown-option"
+         role="option"
+         tabindex="0"
+         [attr.aria-selected]="isSelected(item)"
+         (mousedown)="$event.preventDefault()"
+         (click)="selectItem(item)"
+         (keydown.enter)="selectItem(item)"
+         (keydown.space)="selectItem(item); $event.preventDefault()">
+
       <span class="option-name">
-        {{ displayWith()(option) }}
+        {{ getDisplayText(item) }}
       </span>
 
-      @if (value() === option) {
+      @if (isSelected(item)) {
       <mat-icon class="selected-icon">check</mat-icon>
       }
-    </button>
+
+    </div>
     }
     }
+
   </div>
   }
 </div>

@@ -1,3 +1,10 @@
+:host,
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
+
 :host {
   display: block;
   width: 100%;
@@ -92,7 +99,6 @@
   min-height: 46px;
   gap: 11px;
   padding: 7px 10px;
-  border: none;
   border-radius: 7px;
   background: transparent;
   color: #344054;
@@ -100,6 +106,7 @@
   font: inherit;
   font-size: 14px;
   cursor: pointer;
+  user-select: none;
 
   &:hover,
   &:focus-visible {
@@ -157,3 +164,12 @@
     font-size: 26px;
   }
 }
+
+.loading-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2563eb;
+  animation: pulse 900ms infinite alternate;
+}
+

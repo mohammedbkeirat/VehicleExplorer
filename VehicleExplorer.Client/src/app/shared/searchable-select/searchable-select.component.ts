@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   input,
@@ -21,57 +20,81 @@ export class SearchableSelectComponent<T>
 
   readonly value = model<T | null>(null);
 
-  readonly options = input.required<T[]>();
-  readonly displayWith = input.required<(option: T) => string>();
+  readonly items = input.required<T[]>();
+
+  readonly displayText = input.required<string>();
+  readonly identityValue = input.required<string>();
 
   readonly placeholder = input('Select an option');
   readonly searchable = input(true);
   readonly loading = input(false);
+  readonly icon = input('search');
 
   readonly searchText = signal('');
   readonly isOpen = signal(false);
 
-  readonly filteredOptions = computed(() => {
-    const options = this.options();
+  getDisplayText(item: T): string {
+    if (typeof item === 'string' || typeof item === 'number') {
+      return String(item);
+    }
+
+    return String((item as any)[this.displayText()] ?? '');
+  }
+
+  readonly filteredItems = computed(() => {
+    const items = this.items();
 
     if (!this.searchable()) {
-      return options;
+      return items;
     }
 
     const search = this.searchText().trim().toLowerCase();
 
     if (!search) {
-      return options;
+      return items;
     }
 
-    return options.filter(option =>
-      this.displayWith()(option).toLowerCase().includes(search)
+    return items.filter(item =>
+      this.getDisplayText(item).toLowerCase().includes(search)
     );
   });
 
-  onSearchInput(event: Event): void {
-    const text = (event.target as HTMLInputElement).value;
+  isSelected(item: T): boolean {
+    const selected = this.value();
 
+    if (selected === null) {
+      return false;
+    }
+
+    if (typeof item === 'string' || typeof item === 'number') {
+      return item === selected;
+    }
+
+    return (item as any)[this.identityValue()] == (selected as any)[this.identityValue()];
+  }
+
+  onSearchInput(event: Event) {
+    const text = (event.target as HTMLInputElement).value;
     this.searchText.set(text);
     this.value.set(null);
     this.isOpen.set(true);
   }
 
-  selectOption(option: T): void {
-    this.value.set(option);
-    this.searchText.set(this.displayWith()(option));
+  selectItem(item: T) {
+    this.value.set(item);
+    this.searchText.set(this.getDisplayText(item));
     this.isOpen.set(false);
   }
 
-  openDropdown(): void {
+  openDropdown() {
     this.isOpen.set(true);
   }
 
-  closeDropdown(): void {
+  closeDropdown() {
     this.isOpen.set(false);
   }
 
-  toggleDropdown(): void {
+  toggleDropdown() {
     this.isOpen.update(open => !open);
   }
 }

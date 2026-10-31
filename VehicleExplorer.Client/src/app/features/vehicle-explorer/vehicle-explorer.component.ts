@@ -1,17 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { VehicleExplorerService } from './vehicle-explorer.service';
 import { VechileMake } from '../../Dtos/vehicle-make';
-import { MatSelectModule } from '@angular/material/select';
 import { form, required } from '@angular/forms/signals';
-import { Field, FormField } from '@angular/forms/signals';
+import { FormField } from '@angular/forms/signals';
 import { ModelSearch } from '../../Dtos/model-search';
 import { SearchableSelectComponent } from '../../shared/searchable-select/searchable-select.component';
 
@@ -33,14 +25,10 @@ export class VehicleExplorerComponent {
 
   private readonly searchCriteria = signal<ModelSearch | null>(null);
   readonly submitted = signal(false);
-  readonly isMakeDropdownOpen = signal(false);
 
   readonly submittedMakeId = computed(
     () => this.searchCriteria()?.makeId ?? null
   );
-
-
-  readonly makeDisplay = (make: VechileMake) => make.makeName;
 
   readonly makesResource = this.vehicleService.makesResource;
   readonly modelsResource = this.vehicleService.getModelsByCriteriaResource(this.searchCriteria);
@@ -48,8 +36,7 @@ export class VehicleExplorerComponent {
 
   readonly vehicleSearchModel = signal({
     make: null as VechileMake | null,
-    year: '' as string,
-    makeSearchText: ''
+    year: null as number | null,
   });
 
   readonly vehicleSearchForm = form(
@@ -59,27 +46,6 @@ export class VehicleExplorerComponent {
       required(path.year);
     }
   );
-
-  readonly filteredMakes = computed(() => {
-    const makes = this.makesResource.value() ?? [];
-    const searchText = this.vehicleSearchModel().makeSearchText?.trim().toLowerCase();
-
-    if (!searchText) {
-      return makes;
-    }
-
-    return makes.filter(make => make.makeName.toLowerCase().includes(searchText));
-  });
-
-  selectMake(make: VechileMake) {
-    this.vehicleSearchModel.update(model => ({
-      ...model,
-      make,
-      makeSearchText: make.makeName
-    }));
-
-    this.isMakeDropdownOpen.set(false);
-  }
 
   selectType(type: string) {
     this.searchCriteria.update(criteria =>
@@ -91,18 +57,6 @@ export class VehicleExplorerComponent {
     () => this.modelsResource.value() ?? []
   );
 
-  toggleMakeDropdown(): void {
-    this.isMakeDropdownOpen.update(open => !open);
-  }
-
-  onMakeInputFocus(): void {
-    this.isMakeDropdownOpen.set(true);
-  }
-
-  onMakeInputBlur(): void {
-    this.isMakeDropdownOpen.set(false);
-  }
-
   onSearch(): void {
     this.submitted.set(true);
 
@@ -110,15 +64,15 @@ export class VehicleExplorerComponent {
       return;
     }
 
-    const { make, year } = this.vehicleSearchModel();
+    const model = this.vehicleSearchModel();
 
-    if (!make || year === null) {
+    if (!model.make || model.year === null) {
       return;
     }
-
+     
     this.searchCriteria.set({
-      makeId: make.makeId,
-      year: Number(year),
+      makeId: model.make.makeId,
+      year: model.year,
       type: ''
     });
   }
@@ -129,6 +83,5 @@ export class VehicleExplorerComponent {
     { length: this.currentYear - 1980 + 1 },
     (_, index) => this.currentYear - index
   );
-
 
 }

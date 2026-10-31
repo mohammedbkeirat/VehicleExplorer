@@ -18,88 +18,17 @@
           (submit)="$event.preventDefault(); onSearch()">
       <!-- Make -->
 
-
-      <!--<app-searchable-select [formField]="vehicleSearchForm.make"
-                             [options]="filteredMakes1( ?? []"
-                             [displayWith]="makeDisplay"
-                             placeholder="Search or select a make" />-->
-
       <div class="form-field make-field">
         <label class="field-label" for="make">
           Make <span>*</span>
         </label>
 
-        <div class="make-dropdown">
-          <div class="input-wrapper"
-               [class.focused]="isMakeDropdownOpen()"
-               [class.invalid]="submitted() && !vehicleSearchModel().make">
-            <mat-icon class="field-icon">search</mat-icon>
-
-            <input id="make"
-                   type="text"
-                   placeholder="Search or select a make"
-                   autocomplete="off"
-                   [formField]="vehicleSearchForm.makeSearchText"
-                   (focus)="onMakeInputFocus()"
-                   (blur)="onMakeInputBlur()"
-                   [attr.aria-expanded]="isMakeDropdownOpen()"
-                   aria-haspopup="listbox"
-                   aria-controls="make-options" />
-
-            <button type="button"
-                    class="icon-button"
-                    aria-label="Toggle make options"
-                    (mousedown)="$event.preventDefault()"
-                    (click)="
-                toggleMakeDropdown()
-              ">
-              <mat-icon>
-                {{ isMakeDropdownOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
-              </mat-icon>
-            </button>
-          </div>
-
-          @if (isMakeDropdownOpen()) {
-          <div class="dropdown-options" id="make-options" role="listbox">
-            @if (makesResource.isLoading()) {
-            <div class="dropdown-message">
-              <span class="loading-dot"></span>
-              Loading makes...
-            </div>
-            } @else if (makesResource.error()) {
-            <div class="dropdown-message error">
-              Unable to load makes.
-            </div>
-            } @else if (filteredMakes().length === 0) {
-            <div class="empty-state">
-              <mat-icon>search_off</mat-icon>
-              <span>No matching makes found</span>
-            </div>
-            } @else {
-            @for (make of filteredMakes(); track make) {
-            <button type="button"
-                    class="dropdown-option"
-                    role="option"
-                    [attr.aria-selected]="vehicleSearchModel().make?.makeId === make.makeId"
-                    (mousedown)="$event.preventDefault()"
-                    (click)="selectMake(make)">
-              <span class="option-icon">
-                <mat-icon>directions_car</mat-icon>
-              </span>
-
-              <span class="option-name">{{ make.makeName }}</span>
-
-              @if (
-              vehicleSearchModel().make?.makeId === make.makeId
-              ) {
-              <mat-icon class="selected-icon">check</mat-icon>
-              }
-            </button>
-            }
-            }
-          </div>
-          }
-        </div>
+        <app-searchable-select [formField]="vehicleSearchForm.make"
+                               [items]="makesResource.value() ?? []"
+                               displayText="makeName"
+                               identityValue="makeId"
+                               [loading]="makesResource.isLoading()"
+                               placeholder="Search or select a make" />
 
         @if (submitted() && !vehicleSearchModel().make) {
         <span class="field-error">
@@ -109,49 +38,39 @@
         }
       </div>
 
-      <!-- Model year -->
-      <div class="form-field year-field">
-        <label class="field-label" for="year">
-          Model year <span>*</span>
-        </label>
+        <!-- Model year -->
+    <div class="form-field year-field">
+      <label class="field-label" for="year">
+        Model year <span>*</span>
+      </label>
 
-        <div class="input-wrapper"
-             [class.invalid]="
-            submitted() && vehicleSearchModel().year === null
-          ">
-          <mat-icon class="field-icon">calendar_today</mat-icon>
+      <app-searchable-select [formField]="vehicleSearchForm.year"
+                             [items]="years"
+                             icon="calendar_today"
+                             displayText=""
+                             identityValue=""
+                             placeholder="Search or select a year" />
 
-          <select id="year" [formField]="vehicleSearchForm.year">
-            <option [value]="null" disabled>Select a year</option>
+      @if (submitted() && vehicleSearchModel().year == null) {
+      <span class="field-error">
+        <mat-icon>error_outline</mat-icon>
+        Please select a year.
+      </span>
+      }
+    </div>
 
-            @for (year of years; track year) {
-            <option [value]="year">{{ year }}</option>
-            }
-          </select>
-
-          <mat-icon class="select-arrow">keyboard_arrow_down</mat-icon>
-        </div>
-
-        @if (submitted() && vehicleSearchModel().year == null) {
-        <span class="field-error">
-          <mat-icon>error_outline</mat-icon>
-          Please select a year.
-        </span>
-        }
-      </div>
-
-      <!-- Search -->
-      <button class="search-button"
-              type="submit"
-              [disabled]="modelsResource.isLoading()">
-        @if (modelsResource.isLoading()) {
-        <span class="spinner"></span>
-        Searching...
-        } @else {
-        <mat-icon>search</mat-icon>
-        <span>Search vehicles</span>
-        }
-      </button>
+        <!-- Search -->
+        <button class="search-button"
+                type="submit"
+                [disabled]="modelsResource.isLoading()">
+          @if (modelsResource.isLoading()) {
+          <span class="spinner"></span>
+          Searching...
+          } @else {
+          <mat-icon>search</mat-icon>
+          <span>Search vehicles</span>
+          }
+        </button>
     </form>
   </section>
 
@@ -196,8 +115,6 @@
     </div>
   </section>
 
-
-  <!-- Results -->
   @if (modelsResource.error()) {
   <section class="results-panel">
     <div class="status-message error">
