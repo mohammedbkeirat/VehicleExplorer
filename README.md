@@ -224,6 +224,14 @@ Docker images are published to Docker Hub:
 
 The application is also deployed to AWS EC2.
 
+## Live Demo
+
+**Application URL:** [Vehicle Explorer](http://51.21.130.107/vehicle-explorer)
+
+The application is hosted on AWS EC2 using Docker containers.
+
+**Note:** The application currently uses HTTP, not HTTPS. Make sure to access it using `http://` rather than `https://`.
+
 ## License
 
 This project is intended for demonstration and portfolio purposes.
