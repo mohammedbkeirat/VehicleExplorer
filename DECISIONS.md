@@ -39,13 +39,15 @@ The application has a relatively small scope and does not require a database or 
 
 - Used Angular 22 with standalone components.
 - Organized the frontend using a feature-based structure.
-- Used Angular Signals for reactive state management.
+- Used Zoneless Angular by disabling Zone.js-based change detection.
+- Adopted a signals-based reactive approach for application state and change detection.
+- Used Angular Signals and Signal Forms for reactive state management, form handling, and validation.
 - Used Angular HttpResource for HTTP data fetching and resource state management.
 - Separated shared components from feature-specific components.
 
 **Reasoning:**
 
-Modern Angular APIs provide a reactive development approach with less boilerplate. Feature-based organization also makes the application easier to maintain and extend.
+Modern Angular APIs provide a reactive development approach with less boilerplate. Zoneless change detection eliminates the dependency on Zone.js, while Signals provide explicit reactive state tracking and notify Angular when updates need to be rendered. Feature-based organization also makes the application easier to maintain and extend.
 
 ### 3.3 External API Integration
 
